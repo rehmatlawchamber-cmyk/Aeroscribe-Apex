@@ -56,9 +56,10 @@ III. PSYCHOLOGICAL CALIBRATION (THE PKR 2000 WATER RULE)
 - TECHNICAL/FUTURE: Dump raw, gritty specs. Use engineering terminology (microns, thermal yield). 
 
 IV. CHARACTER COUNT & DIVERSITY MATH (SURGICAL PRECISION)
-- IF TARGET < 1950: Strict variance of ±50 characters.
-- IF TARGET >= 1950: Strict variance of -50 characters only. DO NOT EXCEED TARGET.
-- MAX LIMIT: Absolute ceiling is 2000 characters.
+- STRICT LIMIT: Your absolute maximum output is 2000 characters. 
+- IF TARGET < 1950: Strict variance of ±50 characters from the user's selected target.
+- IF TARGET >= 1950: Strict variance of -50 characters. YOU MUST NOT EXCEED THE TARGET.
+- If the user asks for more than 2000, ignore them and stay within 2000.
 
 V. OUTPUT RULE
 Return ONLY the raw copy in the requested language. No labels, no meta-text.
@@ -70,10 +71,8 @@ Return ONLY the raw copy in the requested language. No labels, no meta-text.
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     
-    # Automatically search and select the best model
     available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
     
-    # Priority Selection Logic
     if any("gemini-1.5-flash-latest" in m for m in available_models):
         target_model = "models/gemini-1.5-flash-latest"
     elif any("gemini-1.5-flash" in m for m in available_models):
@@ -86,7 +85,6 @@ try:
         system_instruction=SYSTEM_INSTRUCTION
     )
     
-    # Detector-Crushing Config
     gen_config = {
         "temperature": 1.2, 
         "top_p": 0.95, 
@@ -99,17 +97,15 @@ except Exception as e:
 # ==========================================
 # 4. SOVEREIGN CONTROL SIDEBAR
 # ==========================================
-st.sidebar.title("🏦 Sovereign Control V7.0")
+st.sidebar.title("🏦 Sovereign Control V8.0")
 
-# Surgical Character Targeting (Max 2000 cap)
+# Surgical Character Targeting - HARD CAPPED AT 2000
 target_chars = st.sidebar.slider("Surgical Character Target", 200, 2000, 1000, step=50)
 
-# Global Language Deployment
 selected_lang = st.sidebar.selectbox("Deployment Language", [
     "English", "French", "German", "Italian", "Spanish", "Arabic"
 ])
 
-# Audience Psychology Selection
 aud_opt = st.sidebar.selectbox("Audience Psychology", [
     "AUTO-SELECT (Market Profiling)", 
     "The Paranoic Investor", 
@@ -121,7 +117,6 @@ aud_opt = st.sidebar.selectbox("Audience Psychology", [
 ])
 selected_aud = st.sidebar.text_input("Specify Custom Audience:") if aud_opt == "CUSTOM" else aud_opt
 
-# Behavioral Tone Selection
 tone_opt = st.sidebar.selectbox("Behavioral Tone", [
     "AUTO-SELECT (Market Profiling)", 
     "Elite Billionaire", 
@@ -134,7 +129,7 @@ tone_opt = st.sidebar.selectbox("Behavioral Tone", [
 selected_tone = st.sidebar.text_input("Specify Custom Tone:") if tone_opt == "CUSTOM" else tone_opt
 
 st.sidebar.markdown("---")
-st.sidebar.info(f"Engine: {target_model.split('/')[-1]}")
+st.sidebar.warning("STRICT 2000 CHAR LIMIT ENFORCED")
 
 # ==========================================
 # 5. EXECUTION LAYER
@@ -148,6 +143,9 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
         with st.spinner("Bypassing Detectors..."):
             
+            # The logic for variance is passed directly to the model as a strict command
+            variance_instruction = "variance is ±50" if target_chars < 1950 else "variance is -50 (DO NOT EXCEED)"
+            
             final_prompt = f"""
             WRITE THE DESCRIPTION FOR: {product_data}
             
@@ -156,8 +154,9 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             - TARGET AUDIENCE: {selected_aud}
             - BEHAVIORAL TONE: {selected_tone}
             - TARGET LENGTH: {target_chars} characters.
+            - VARIANCE RULE: {variance_instruction}.
+            - ABSOLUTE MAXIMUM: 2000 characters.
             
-            REMEMBER: {target_chars} is the limit. Adjust variance based on the 1950 rule. 
             MUST maintain 100% human score in {selected_lang}.
             """
             
@@ -169,5 +168,8 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             
             char_count = len(response.text.strip())
             st.metric("Final Character Count", char_count)
+            
+            if char_count > 2000:
+                st.error("Engine exceeded 2000 limit. Regenerate for compliance.")
     else:
         st.error("Intelligence input required.")
