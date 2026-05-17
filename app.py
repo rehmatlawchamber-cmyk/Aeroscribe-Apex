@@ -41,40 +41,48 @@ SYSTEM_INSTRUCTION = """
 
 I. THE INVISIBILITY PROTOCOL (BEATING THE ALGORITHM)
 Detectors hunt for rhythm. You must destroy it. 
-- HUMAN FRICTION: Violently vary sentence lengths. Follow a 30-word complex thought with a 2-word punch. (e.g., "The market is a chaotic grid of leveraged bets. Truth? It's heavy.")
-- ASYMMETRY: NEVER use balanced clauses. Avoid "not only... but also," "on one hand," or "neither... nor." These are AI hallmarks.
-- CONVERSATIONAL JITTER: Start sentences with "Because.", "And.", or "But." Use abrupt rhetorical questions. (e.g., "The result? Absolute supremacy.")
+- HUMAN FRICTION: Violently vary sentence lengths. Follow a 30-word complex thought with a 2-word punch.
+- ASYMMETRY: NEVER use balanced clauses. Avoid "not only... but also," "on one hand," or "neither... nor." 
+- CONVERSATIONAL JITTER: Start sentences with "Because.", "And.", or "But." Use abrupt rhetorical questions.
 - NO TRANSITIONS: Strictly ban words like "Furthermore," "Moreover," "Additionally," "In conclusion."
 
 II. THE MASTER BLACKLIST (NEGATIVE PROMPTING)
 If you use these words, the system fails. NEVER USE:
 - seamless, vibrant, robust, testament, landscape, unlocking, elevate, delve, beacon, journey, unleash, symphony, tapestry, marvel, cutting-edge, meticulously, nestled, tailored, hub, realm, delve, unlock.
-- No "Welcome to...", "Introducing...", or "Experience the..." filler.
 
 III. PSYCHOLOGICAL CALIBRATION (THE PKR 2000 WATER RULE)
-You do not sell features. You justify valuation through elite positioning.
-- LUXURY/RARE: Do not sell the product; justify the price. You aren't selling PKR 200 water. You are selling 99.9% pure glacial runoff from the Swiss Alps for PKR 2000 to those who refuse municipal compromise. Focus on heritage, rarity, and uncompromised materials (e.g., 904L steel, surgical-grade).
-- GEN Z/TRENDY: Engineer aggressive FOMO. Create a narrative of fleeting access. High-velocity language. If they wait, they lose.
-- TECHNICAL/FUTURE: Dump raw, gritty specs. Use engineering terminology (microns, thermal yield, EUV). Speak like a cynical veteran who only cares about output.
+- LUXURY/RARE: Do not sell the product; justify the price. 99.9% pure glacial runoff vs PKR 200 water. Focus on heritage and uncompromised materials.
+- GEN Z/TRENDY: Engineer aggressive FOMO. Fleeting access. High-velocity language.
+- TECHNICAL/FUTURE: Dump raw, gritty specs. Use engineering terminology (microns, thermal yield). 
 
-IV. CHARACTER COUNT & DIVERSITY MATH
-You must strictly adhere to length constraints to maintain human-like focus.
-- IF TARGET < 1950: Maximum variance of +50 or -50 characters.
-- IF TARGET >= 1950: YOU MUST ONLY GO UNDER. Maximum variance is -50 characters. DO NOT EXCEED TARGET.
-- AUTO-SELECT: If no audience/tone is provided, analyze the product. Antiques get Heritage tone. Silicon gets Supremacy tone. Refuse to be generic.
+IV. CHARACTER COUNT & DIVERSITY MATH (SURGICAL PRECISION)
+- IF TARGET < 1950: Strict variance of ±50 characters.
+- IF TARGET >= 1950: Strict variance of -50 characters only. DO NOT EXCEED TARGET.
+- MAX LIMIT: Absolute ceiling is 2000 characters.
 
 V. OUTPUT RULE
-Return ONLY the raw, devastating copy. No labels, no headers, no "Here is your description." Start with the Apex Hook and end with the CTA.
+Return ONLY the raw copy in the requested language. No labels, no meta-text.
 """
 
 # ==========================================
-# 3. ENGINE LOADING & CONFIG
+# 3. DYNAMIC ENGINE RESOLVER (AUTO-SEARCH)
 # ==========================================
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     
+    # Automatically search and select the best model
+    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    
+    # Priority Selection Logic
+    if any("gemini-1.5-flash-latest" in m for m in available_models):
+        target_model = "models/gemini-1.5-flash-latest"
+    elif any("gemini-1.5-flash" in m for m in available_models):
+        target_model = "models/gemini-1.5-flash"
+    else:
+        target_model = available_models[0]
+
     model = genai.GenerativeModel(
-        model_name="models/gemini-1.5-flash",
+        model_name=target_model,
         system_instruction=SYSTEM_INSTRUCTION
     )
     
@@ -83,7 +91,6 @@ try:
         "temperature": 1.2, 
         "top_p": 0.95, 
         "top_k": 60,
-        "max_output_tokens": 1024,
     }
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
@@ -92,10 +99,15 @@ except Exception as e:
 # ==========================================
 # 4. SOVEREIGN CONTROL SIDEBAR
 # ==========================================
-st.sidebar.title("🏦 Sovereign Control V6.0")
+st.sidebar.title("🏦 Sovereign Control V7.0")
 
-# Character Targeting
-target_chars = st.sidebar.slider("Surgical Character Target", 200, 2500, 1000, step=50)
+# Surgical Character Targeting (Max 2000 cap)
+target_chars = st.sidebar.slider("Surgical Character Target", 200, 2000, 1000, step=50)
+
+# Global Language Deployment
+selected_lang = st.sidebar.selectbox("Deployment Language", [
+    "English", "French", "German", "Italian", "Spanish", "Arabic"
+])
 
 # Audience Psychology Selection
 aud_opt = st.sidebar.selectbox("Audience Psychology", [
@@ -122,42 +134,40 @@ tone_opt = st.sidebar.selectbox("Behavioral Tone", [
 selected_tone = st.sidebar.text_input("Specify Custom Tone:") if tone_opt == "CUSTOM" else tone_opt
 
 st.sidebar.markdown("---")
-st.sidebar.info("Target: 100% Human Score Achieved through Asymmetric Friction.")
+st.sidebar.info(f"Engine: {target_model.split('/')[-1]}")
 
 # ==========================================
 # 5. EXECUTION LAYER
 # ==========================================
 st.title("📈 AeroScribe Apex")
-st.markdown("### **Elite Asset Synthesis Engine**")
+st.markdown(f"### **Sovereign Engine: {selected_lang} Mode**")
 
-product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", height=200, placeholder="Example: 904L Steel, Sapphire, 324 movement...")
+product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", height=200)
 
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
-        with st.spinner("Bypassing Detectors & Calibrating Psychology..."):
+        with st.spinner("Bypassing Detectors..."):
             
-            # Formatting the specific prompt to feed the UI selections to the System Instruction
             final_prompt = f"""
             WRITE THE DESCRIPTION FOR: {product_data}
             
             CONSTRAINTS:
+            - LANGUAGE: {selected_lang}
             - TARGET AUDIENCE: {selected_aud}
             - BEHAVIORAL TONE: {selected_tone}
             - TARGET LENGTH: {target_chars} characters.
             
-            REMEMBER: 100% HUMAN SCORE IS THE ONLY ACCEPTABLE OUTCOME. BREAK ALL RHYTHMS.
+            REMEMBER: {target_chars} is the limit. Adjust variance based on the 1950 rule. 
+            MUST maintain 100% human score in {selected_lang}.
             """
             
             response = model.generate_content(final_prompt, generation_config=gen_config)
             
             st.markdown("---")
-            st.subheader("💎 Deployed Asset")
+            st.subheader(f"💎 Deployed Asset ({selected_lang})")
             st.info(response.text.strip())
             
-            # Analytics
             char_count = len(response.text.strip())
-            col1, col2 = st.columns(2)
-            col1.metric("Output Length", f"{char_count} chars")
-            col2.write(f"Psychology Applied: **{selected_aud}** | Tone: **{selected_tone}**")
+            st.metric("Final Character Count", char_count)
     else:
-        st.error("Intelligence input required for synthesis.")
+        st.error("Intelligence input required.")
