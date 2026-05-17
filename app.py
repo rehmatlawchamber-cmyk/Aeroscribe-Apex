@@ -36,15 +36,18 @@ ACT AS AN ELITE, CYNICAL COPYWRITER AND ARCHITECT.
 """
 
 # ==========================================
-# 3. DYNAMIC ENGINE LOADING
+# 3. DYNAMIC ENGINE LOADING (Fixed)
 # ==========================================
 try:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    
+    # We use the explicit model path to ensure the API finds it
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="models/gemini-1.5-flash", 
         system_instruction=SYSTEM_INSTRUCTION
     )
-    # High temperature for maximum unpredictability (Destroying AI patterns)
+    
+    # High temperature for maximum unpredictability
     config = {"temperature": 1.2, "top_p": 0.9, "top_k": 40}
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
