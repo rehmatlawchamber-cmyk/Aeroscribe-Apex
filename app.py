@@ -36,19 +36,36 @@ ACT AS AN ELITE, CYNICAL COPYWRITER AND ARCHITECT.
 """
 
 # ==========================================
-# 3. DYNAMIC ENGINE LOADING (Fixed)
+# 3. GLOBAL FAIL-SAFE ENGINE LOADING
 # ==========================================
 try:
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
     
-    # We use the explicit model path to ensure the API finds it
-    model = genai.GenerativeModel(
-        model_name="models/gemini-1.5-flash", 
-        system_instruction=SYSTEM_INSTRUCTION
-    )
+    # We try multiple naming conventions to bypass the 'NotFound' error
+    model_names = ["models/gemini-1.5-flash-latest", "models/gemini-1.5-flash", "gemini-1.5-flash"]
     
+    success = False
+    for m_name in model_names:
+        try:
+            model = genai.GenerativeModel(
+                model_name=m_name,
+                system_instruction=SYSTEM_INSTRUCTION
+            )
+            # Test ping to see if model exists
+            model.generate_content("ping", generation_config={"max_output_tokens": 1})
+            target_model = m_name
+            success = True
+            break
+        except Exception:
+            continue
+            
+    if not success:
+        st.error("ENGINE OFFLINE: Could not find a compatible Gemini model. Check API Key permissions.")
+        st.stop()
+
     # High temperature for maximum unpredictability
     config = {"temperature": 1.2, "top_p": 0.9, "top_k": 40}
+    
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
     st.stop()
