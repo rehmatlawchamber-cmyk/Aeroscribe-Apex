@@ -221,7 +221,7 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         else:
             st.info(output_text)
             st.metric("Final Character Count", char_count)
-            
+        
 except Exception as e:
-    st.error(f"SYSTEM FAULT: {str(e)}")
-    st.stop()
+st.error(f"SYSTEM FAULT: {str(e)}")
+st.stop()
