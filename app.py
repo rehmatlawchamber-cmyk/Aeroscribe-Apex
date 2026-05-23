@@ -58,15 +58,10 @@ If you use these words, the system fails. NEVER USE:
 
 IV. CHARACTER COUNT MATH (LETHAL SURGICAL PRECISION)
 - HARD CEILING: Your absolute maximum output under ANY circumstance is 2000 characters. 
-- VARIANCE PROTOCOL: You will receive a TARGET length. You MUST utilize the full space available. Output as close to the TARGET as possible without crossing it.
-- SAFE WINDOW: Secure your output smoothly between [TARGET - 150] and [TARGET]. Do not stop prematurely; expand on the technical specs or the audience's vulnerabilities to use the full character budget.
+- VARIANCE PROTOCOL: You will receive a target chunk length. You MUST utilize the full space available. Output as close to the target chunk length as possible without crossing it.
 
-V. OUTPUT STRUCTURAL ROADMAP
-- Return ONLY the raw sales copy in the requested language. Zero meta-text. Zero formatting labels.
-- To cleanly reach the requested character TARGET without using forbidden transitions or robotic filler, structurally divide your copy into 3 raw, unlabeled movements:
-  1. THE CHOKE (0-25% of target): Aggressive psychological disruption. Shatter their current sense of security.
-  2. THE ANATOMY (25-75% of target): Dump raw, gritty, technical specs. Force them to face the uncompromised physics or materials of the asset.
-  3. THE ULTIMATUM (75-100% of target): Cold, high-velocity FOMO. Force an immediate subconscious buying decision.
+V. OUTPUT RULE
+Return ONLY the raw sales copy in the requested language. Zero meta-text. Zero formatting labels. Do not welcome the user or write structural intros. Start writing the copy immediately.
 """
 
 # ==========================================
@@ -89,12 +84,11 @@ try:
         system_instruction=SYSTEM_INSTRUCTION
     )
     
-    # SYSTEM UPGRADE: Optimized for multilingual density and precision safety
     gen_config = {
         "temperature": 1.0, 
         "top_p": 0.95, 
         "top_k": 60,
-        "max_output_tokens": 1200 
+        "max_output_tokens": 600 # Streamlined chunk token capacity
     }
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
@@ -103,10 +97,10 @@ except Exception as e:
 # ==========================================
 # 4. SOVEREIGN CONTROL SIDEBAR
 # ==========================================
-st.sidebar.title("🏦 Sovereign Control V9.5")
+st.sidebar.title("🏦 Sovereign Control V10.0")
 
 # Surgical Character Targeting - HARD CAPPED AT 2000
-target_chars = st.sidebar.slider("Surgical Character Target (Max 2000)", 200, 2000, 1000, step=50)
+target_chars = st.sidebar.slider("Surgical Character Target (Max 2000)", 300, 2000, 1200, step=150)
 
 selected_lang = st.sidebar.selectbox("Deployment Language", [
     "English", "French", "German", "Italian", "Spanish", "Arabic"
@@ -135,15 +129,14 @@ tone_opt = st.sidebar.selectbox("Behavioral Tone", [
 selected_tone = st.sidebar.text_input("Specify Custom Tone:") if tone_opt == "CUSTOM" else tone_opt
 
 st.sidebar.markdown("---")
-st.sidebar.success("DYNAMIC MODE: 1200 Max Tokens | Adaptive Safety Active")
+st.sidebar.success("SEQUENTIAL MULTI-STAGE GENERATION ACTIVE")
 
 # ==========================================
 # 5. EXECUTION LAYER
 # ==========================================
 st.title("📈 AeroScribe Apex")
-st.markdown(f"### **Sovereign Engine: {selected_lang} Mode**")
+st.markdown(f"### **Sovereign Engine: Multi-Stage {selected_lang} Mode**")
 
-# Set the requested technical product parameters as default placeholder data
 default_specs = (
     "[PRODUCT SPECIFICATIONS]\n"
     "- 256-bit quantum-resistant hardware security module\n"
@@ -160,52 +153,75 @@ product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", 
 
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
-        with st.spinner("Executing Psychological Override & Bypassing Detectors..."):
-            
-            # Mathematical Safe Floor for the LLM based on updated 150-char window
-            target_floor = max(50, target_chars - 150)
-            
-            # Formatted structure enforcing both user-defined parameters and expansion instructions
-            final_prompt = (
-                f"WRITE THE HIGH-CONVERSION SALES COPY FOR:\n{product_data}\n\n"
-                f"[EXECUTION INSTRUCTIONS TO EXTEND LENGTH]\n"
-                f"To achieve the full character length requested by the user, expand on the implications of each specification systematically across three distinct phases:\n"
-                f"1. Deeply analyze the psychological threat landscape of current digital clouds to illustrate why standard passphrases fail.\n"
-                f"2. Systematically dissect the physical engineering of the asset (the vascular scanning tech, the titanium metallurgy, and the self-destruct layout) using raw, gritty terminology.\n"
-                f"3. Detail the exact scenario of an attempted physical or digital breach, proving how the zero-knowledge framework isolates and protects the capital.\n\n"
+        
+        # Programmatically dividing the total character budget into 3 explicit stages
+        chunk_target = target_chars // 3
+        chunk_floor = max(30, chunk_target - 80)
+        
+        compiled_output_segments = []
+        
+        # --- PHASE 1: THE CHOKE ---
+        with st.spinner("Executing Phase 1: Bypassing Detectors & Engaging The Choke..."):
+            prompt_1 = (
+                f"WRITE PHASE 1 (THE CHOKE) FOR THIS ASSET:\n{product_data}\n\n"
+                f"PHASE 1 CORE TASK:\n"
+                f"Deeply analyze the psychological threat landscape of current digital clouds to illustrate why standard passphrases and global banking systems fail. Aggressive psychological disruption. Shatter their current sense of security.\n\n"
                 f"CONSTRAINTS:\n"
                 f"- LANGUAGE: {selected_lang}\n"
                 f"- TARGET AUDIENCE: {selected_aud}\n"
-                f"- BEHAVIORAL TONE: {selected_tone}\n\n"
-                f"STRICT LENGTH ENFORCEMENT:\n"
-                f"- Your TARGET is {target_chars} characters.\n"
-                f"- You MUST output between {target_floor} and {target_chars} characters.\n"
-                f"- DO NOT stop prematurely. Use the full space available without crossing the ceiling.\n"
-                f"- Aim for roughly {target_chars - 20} characters to guarantee survival.\n\n"
-                f"MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence."
+                f"- BEHAVIORAL TONE: {selected_tone}\n"
+                f"- LENGTH CONSTRAINT: Output between {chunk_floor} and {chunk_target} characters. Do not stop early."
             )
-            
-            response = model.generate_content(final_prompt, generation_config=gen_config)
-            
-            output_text = response.text.strip()
-            char_count = len(output_text)
-            
-            st.markdown("---")
-            st.subheader(f"💎 Deployed Asset ({selected_lang})")
-            
-            # HARD SECURITY TRUNCATOR ACTIVE
-            if char_count > target_chars:
-                st.warning("Engine attempted to exceed limit. Engaging Auto-Truncation Protocol.")
-                # Cuts the text perfectly at the last space before your target limit
-                truncated_text = output_text[:target_chars].rsplit(' ', 1)[0] + "."
-                st.info(truncated_text)
-                st.metric("Final Character Count (Truncated)", len(truncated_text))
-            else:
-                st.info(output_text)
-                st.metric("Final Character Count", char_count)
-                
-            if char_count < target_floor and char_count <= target_chars:
-                st.caption(f"Note: Output fell below the {target_floor} floor, but successfully respected the maximum ceiling.")
+            res_1 = model.generate_content(prompt_1, generation_config=gen_config)
+            compiled_output_segments.append(res_1.text.strip())
 
-    else:
-        st.error("Intelligence input required.")
+        # --- PHASE 2: THE ANATOMY ---
+        with st.spinner("Executing Phase 2: Processing Gritty Technical Specs..."):
+            prompt_2 = (
+                f"WRITE PHASE 2 (THE ANATOMY) FOR THIS ASSET:\n{product_data}\n\n"
+                f"PHASE 2 CORE TASK:\n"
+                f"Systematically dissect the physical engineering of the asset (the vascular scanning tech, the titanium metallurgy, and the self-destruct layout) using raw, gritty terminology. Force them to face the uncompromised physics or materials of the asset.\n\n"
+                f"CONSTRAINTS:\n"
+                f"- LANGUAGE: {selected_lang}\n"
+                f"- TARGET AUDIENCE: {selected_aud}\n"
+                f"- BEHAVIORAL TONE: {selected_tone}\n"
+                f"- LENGTH CONSTRAINT: Output between {chunk_floor} and {chunk_target} characters. Do not stop early."
+            )
+            res_2 = model.generate_content(prompt_2, generation_config=gen_config)
+            compiled_output_segments.append(res_2.text.strip())
+
+        # --- PHASE 3: THE ULTIMATUM ---
+        with st.spinner("Executing Phase 3: Finalizing High-Velocity FOMO..."):
+            prompt_3 = (
+                f"WRITE PHASE 3 (THE ULTIMATUM) FOR THIS ASSET:\n{product_data}\n\n"
+                f"PHASE 3 CORE TASK:\n"
+                f"Detail the exact scenario of an attempted physical or digital breach, proving how the zero-knowledge framework isolates and protects the capital. Cold, high-velocity FOMO. Force an immediate subconscious buying decision.\n\n"
+                f"CONSTRAINTS:\n"
+                f"- LANGUAGE: {selected_lang}\n"
+                f"- TARGET AUDIENCE: {selected_aud}\n"
+                f"- BEHAVIORAL TONE: {selected_tone}\n"
+                f"- LENGTH CONSTRAINT: Output between {chunk_floor} and {chunk_target} characters. Do not stop early."
+            )
+            res_3 = model.generate_content(prompt_3, generation_config=gen_config)
+            compiled_output_segments.append(res_3.text.strip())
+
+        # Combine all parts natively with clean spacing
+        output_text = "\n\n".join(compiled_output_segments)
+        char_count = len(output_text)
+        
+        st.markdown("---")
+        st.subheader(f"💎 Deployed Asset ({selected_lang})")
+        
+        # HARD SECURITY SYSTEM TRUNCATOR
+        if char_count > target_chars:
+            st.warning("Engine exceeded total target budget. Engaging Auto-Truncation Protocol.")
+            truncated_text = output_text[:target_chars].rsplit(' ', 1)[0] + "."
+            st.info(truncated_text)
+            st.metric("Final Character Count (Truncated)", len(truncated_text))
+        else:
+            st.info(output_text)
+            st.metric("Final Character Count", char_count)
+            
+except Exception as e:
+    st.error(f"SYSTEM FAULT: {str(e)}")
+    st.stop()
