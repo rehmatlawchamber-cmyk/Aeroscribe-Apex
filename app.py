@@ -58,8 +58,8 @@ If you use these words, the system fails. NEVER USE:
 
 IV. CHARACTER COUNT MATH (LETHAL SURGICAL PRECISION)
 - HARD CEILING: Your absolute maximum output under ANY circumstance is 2000 characters. 
-- VARIANCE PROTOCOL: You will receive a TARGET length. You MUST output between [TARGET - 50] and [TARGET]. 
-- LETHAL ERROR: Exceeding the TARGET by even 1 character is a catastrophic failure. Aim for exactly [TARGET - 25] to ensure maximum compliance.
+- VARIANCE PROTOCOL: You will receive a TARGET length. You MUST utilize the full space available. Output as close to the TARGET as possible without crossing it.
+- SAFE WINDOW: Secure your output smoothly between [TARGET - 150] and [TARGET]. Do not stop prematurely; expand on the technical specs or the audience's vulnerabilities to use the full character budget.
 
 V. OUTPUT STRUCTURAL ROADMAP
 - Return ONLY the raw sales copy in the requested language. Zero meta-text. Zero formatting labels.
@@ -143,18 +143,36 @@ st.sidebar.success("DYNAMIC MODE: 1200 Max Tokens | Adaptive Safety Active")
 st.title("📈 AeroScribe Apex")
 st.markdown(f"### **Sovereign Engine: {selected_lang} Mode**")
 
-product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", height=200)
+# Set the requested technical product parameters as default placeholder data
+default_specs = (
+    "[PRODUCT SPECIFICATIONS]\n"
+    "- 256-bit quantum-resistant hardware security module\n"
+    "- zero-knowledge architecture\n"
+    "- military-grade titanium enclosure\n"
+    "- biometric vascular scanning\n"
+    "- offline transaction signing\n"
+    "- anti-tamper self-destruct mechanism\n"
+    "- zero network connectivity\n"
+    "- fits in a luxury watch pocket"
+)
+
+product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", value=default_specs, height=220)
 
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
         with st.spinner("Executing Psychological Override & Bypassing Detectors..."):
             
-            # Mathematical Floor for the LLM
-            target_floor = max(50, target_chars - 50)
+            # Mathematical Safe Floor for the LLM based on updated 150-char window
+            target_floor = max(50, target_chars - 150)
             
-            # Formatted flat structure to maintain clean, error-free string compilation
+            # Formatted structure enforcing both user-defined parameters and expansion instructions
             final_prompt = (
-                f"WRITE THE HIGH-CONVERSION SALES COPY FOR: {product_data}\n\n"
+                f"WRITE THE HIGH-CONVERSION SALES COPY FOR:\n{product_data}\n\n"
+                f"[EXECUTION INSTRUCTIONS TO EXTEND LENGTH]\n"
+                f"To achieve the full character length requested by the user, expand on the implications of each specification systematically across three distinct phases:\n"
+                f"1. Deeply analyze the psychological threat landscape of current digital clouds to illustrate why standard passphrases fail.\n"
+                f"2. Systematically dissect the physical engineering of the asset (the vascular scanning tech, the titanium metallurgy, and the self-destruct layout) using raw, gritty terminology.\n"
+                f"3. Detail the exact scenario of an attempted physical or digital breach, proving how the zero-knowledge framework isolates and protects the capital.\n\n"
                 f"CONSTRAINTS:\n"
                 f"- LANGUAGE: {selected_lang}\n"
                 f"- TARGET AUDIENCE: {selected_aud}\n"
@@ -162,7 +180,7 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
                 f"STRICT LENGTH ENFORCEMENT:\n"
                 f"- Your TARGET is {target_chars} characters.\n"
                 f"- You MUST output between {target_floor} and {target_chars} characters.\n"
-                f"- DO NOT output {target_chars + 1} or more characters. It will break the UI.\n"
+                f"- DO NOT stop prematurely. Use the full space available without crossing the ceiling.\n"
                 f"- Aim for roughly {target_chars - 20} characters to guarantee survival.\n\n"
                 f"MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence."
             )
@@ -177,7 +195,7 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             
             # HARD SECURITY TRUNCATOR ACTIVE
             if char_count > target_chars:
-                st.warning(f"Engine attempted to exceed limit. Engaging Auto-Truncation Protocol.")
+                st.warning("Engine attempted to exceed limit. Engaging Auto-Truncation Protocol.")
                 # Cuts the text perfectly at the last space before your target limit
                 truncated_text = output_text[:target_chars].rsplit(' ', 1)[0] + "."
                 st.info(truncated_text)
