@@ -61,9 +61,12 @@ IV. CHARACTER COUNT MATH (LETHAL SURGICAL PRECISION)
 - VARIANCE PROTOCOL: You will receive a TARGET length. You MUST output between [TARGET - 50] and [TARGET]. 
 - LETHAL ERROR: Exceeding the TARGET by even 1 character is a catastrophic failure. Aim for exactly [TARGET - 25] to ensure maximum compliance.
 
-V. OUTPUT RULE
-Return ONLY the raw sales copy in the requested language. Zero meta-text. Zero formatting labels.
-"""
+V. OUTPUT STRUCTURAL ROADMAP
+- Return ONLY the raw sales copy in the requested language. Zero meta-text.
+- To cleanly reach the requested character TARGET without using forbidden transitions or robotic filler, structurally divide your copy into 3 raw, unlabeled movements:
+  1. THE CHOKE (0-25% of target): Aggressive psychological disruption. Shatter their current sense of security.
+  2. THE ANATOMY (25-75% of target): Dump raw, gritty, technical specs. Force them to face the uncompromised physics or materials of the asset.
+  3. THE ULTIMATUM (75-100% of target): Cold, high-velocity FOMO. Force an immediate subconscious buying decision.
 
 # ==========================================
 # 3. DYNAMIC ENGINE RESOLVER (AUTO-SEARCH)
