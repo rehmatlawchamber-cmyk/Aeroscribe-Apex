@@ -84,11 +84,12 @@ try:
         system_instruction=SYSTEM_INSTRUCTION
     )
     
+   # SYSTEM UPGRADE: Expanded token overhead to support full 2000-character generation
     gen_config = {
         "temperature": 1.0, 
         "top_p": 0.95, 
         "top_k": 60,
-        "max_output_tokens": 600 
+        "max_output_tokens": 2000  # Raised from 600 to completely eliminate mid-sentence cut-offs
     }
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
