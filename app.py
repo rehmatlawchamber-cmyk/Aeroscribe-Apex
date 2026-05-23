@@ -85,12 +85,12 @@ try:
         system_instruction=SYSTEM_INSTRUCTION
     )
     
-    # HARD LIMIT: 550 tokens strictly enforced at the API level
+    # SYSTEM UPGRADE: Optimized for multilingual density and precision safety
     gen_config = {
-        "temperature": 1.15, 
+        "temperature": 1.0, 
         "top_p": 0.95, 
         "top_k": 60,
-        "max_output_tokens": 550 
+        "max_output_tokens": 1200 
     }
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
@@ -99,7 +99,7 @@ except Exception as e:
 # ==========================================
 # 4. SOVEREIGN CONTROL SIDEBAR
 # ==========================================
-st.sidebar.title("🏦 Sovereign Control V9.0")
+st.sidebar.title("🏦 Sovereign Control V9.5")
 
 # Surgical Character Targeting - HARD CAPPED AT 2000
 target_chars = st.sidebar.slider("Surgical Character Target (Max 2000)", 200, 2000, 1000, step=50)
@@ -131,7 +131,7 @@ tone_opt = st.sidebar.selectbox("Behavioral Tone", [
 selected_tone = st.sidebar.text_input("Specify Custom Tone:") if tone_opt == "CUSTOM" else tone_opt
 
 st.sidebar.markdown("---")
-st.sidebar.error("STRICT MODE: Max 550 Tokens | Max 2000 Chars")
+st.sidebar.success("DYNAMIC MODE: 1200 Max Tokens | Adaptive Safety Active")
 
 # ==========================================
 # 5. EXECUTION LAYER
@@ -173,10 +173,10 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             st.markdown("---")
             st.subheader(f"💎 Deployed Asset ({selected_lang})")
             
-            # Post-Generation Truncation Safety Net (The Final Guarantee)
+            # HARD SECURITY TRUNCATOR ACTIVE
             if char_count > target_chars:
                 st.warning(f"Engine attempted to exceed limit. Engaging Auto-Truncation Protocol.")
-                # We cut it cleanly at the last space before the target limit to prevent broken words
+                # Cuts the text perfectly at the last space before your target limit
                 truncated_text = output_text[:target_chars].rsplit(' ', 1)[0] + "."
                 st.info(truncated_text)
                 st.metric("Final Character Count (Truncated)", len(truncated_text))
