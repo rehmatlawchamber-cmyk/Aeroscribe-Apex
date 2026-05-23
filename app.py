@@ -50,7 +50,7 @@ Detectors hunt for rhythm and predictability. You must destroy them.
 - HUMAN FRICTION: Violently vary sentence lengths. Follow a 35-word complex thought with a 2-word punch.
 - ASYMMETRY: NEVER use balanced clauses. Avoid "not only... but also," "on one hand," or "neither... nor." 
 - CONVERSATIONAL JITTER: Start sentences with "Because.", "And.", or "But." Use abrupt, hyper-specific rhetorical questions.
-- NO TRANSITIONS: Strictly ban words like "Furthermore," "Moreover," "Additionally," "In conclusion."
+- NO TRANSITIONS: Strictly ban words like "Furthermore," "More over," "Additionally," "In conclusion."
 
 III. THE MASTER BLACKLIST (NEGATIVE PROMPTING)
 If you use these words, the system fails. NEVER USE:
@@ -88,7 +88,7 @@ try:
         "temperature": 1.0, 
         "top_p": 0.95, 
         "top_k": 60,
-        "max_output_tokens": 600 # Streamlined chunk token capacity
+        "max_output_tokens": 600 
     }
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
@@ -99,7 +99,6 @@ except Exception as e:
 # ==========================================
 st.sidebar.title("🏦 Sovereign Control V10.0")
 
-# Surgical Character Targeting - HARD CAPPED AT 2000
 target_chars = st.sidebar.slider("Surgical Character Target (Max 2000)", 300, 2000, 1200, step=150)
 
 selected_lang = st.sidebar.selectbox("Deployment Language", [
@@ -154,7 +153,6 @@ product_data = st.text_area("Input Intelligence (Features, Materials, Specs):", 
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
         
-        # Programmatically dividing the total character budget into 3 explicit stages
         chunk_target = target_chars // 3
         chunk_floor = max(30, chunk_target - 80)
         
@@ -205,14 +203,12 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             res_3 = model.generate_content(prompt_3, generation_config=gen_config)
             compiled_output_segments.append(res_3.text.strip())
 
-        # Combine all parts natively with clean spacing
         output_text = "\n\n".join(compiled_output_segments)
         char_count = len(output_text)
         
         st.markdown("---")
         st.subheader(f"💎 Deployed Asset ({selected_lang})")
         
-        # HARD SECURITY SYSTEM TRUNCATOR
         if char_count > target_chars:
             st.warning("Engine exceeded total target budget. Engaging Auto-Truncation Protocol.")
             truncated_text = output_text[:target_chars].rsplit(' ', 1)[0] + "."
@@ -221,7 +217,6 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         else:
             st.info(output_text)
             st.metric("Final Character Count", char_count)
-        
-except Exception as e:
-st.error(f"SYSTEM FAULT: {str(e)}")
-st.stop()
+            
+    else:
+        st.error("Intelligence input required.")
