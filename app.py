@@ -62,11 +62,12 @@ IV. CHARACTER COUNT MATH (LETHAL SURGICAL PRECISION)
 - LETHAL ERROR: Exceeding the TARGET by even 1 character is a catastrophic failure. Aim for exactly [TARGET - 25] to ensure maximum compliance.
 
 V. OUTPUT STRUCTURAL ROADMAP
-- Return ONLY the raw sales copy in the requested language. Zero meta-text.
+- Return ONLY the raw sales copy in the requested language. Zero meta-text. Zero formatting labels.
 - To cleanly reach the requested character TARGET without using forbidden transitions or robotic filler, structurally divide your copy into 3 raw, unlabeled movements:
   1. THE CHOKE (0-25% of target): Aggressive psychological disruption. Shatter their current sense of security.
   2. THE ANATOMY (25-75% of target): Dump raw, gritty, technical specs. Force them to face the uncompromised physics or materials of the asset.
   3. THE ULTIMATUM (75-100% of target): Cold, high-velocity FOMO. Force an immediate subconscious buying decision.
+"""
 
 # ==========================================
 # 3. DYNAMIC ENGINE RESOLVER (AUTO-SEARCH)
@@ -151,21 +152,20 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             # Mathematical Floor for the LLM
             target_floor = max(50, target_chars - 50)
             
-            # FIX: Cleaned up indentation inside the multi-line string literal
-            final_prompt = f"""WRITE THE HIGH-CONVERSION SALES COPY FOR: {product_data}
-
-CONSTRAINTS:
-- LANGUAGE: {selected_lang}
-- TARGET AUDIENCE: {selected_aud}
-- BEHAVIORAL TONE: {selected_tone}
-
-STRICT LENGTH ENFORCEMENT:
-- Your TARGET is {target_chars} characters.
-- You MUST output between {target_floor} and {target_chars} characters.
-- DO NOT output {target_chars + 1} or more characters. It will break the UI.
-- Aim for roughly {target_chars - 20} characters to guarantee survival.
-
-MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence."""
+            # Formatted flat structure to maintain clean, error-free string compilation
+            final_prompt = (
+                f"WRITE THE HIGH-CONVERSION SALES COPY FOR: {product_data}\n\n"
+                f"CONSTRAINTS:\n"
+                f"- LANGUAGE: {selected_lang}\n"
+                f"- TARGET AUDIENCE: {selected_aud}\n"
+                f"- BEHAVIORAL TONE: {selected_tone}\n\n"
+                f"STRICT LENGTH ENFORCEMENT:\n"
+                f"- Your TARGET is {target_chars} characters.\n"
+                f"- You MUST output between {target_floor} and {target_chars} characters.\n"
+                f"- DO NOT output {target_chars + 1} or more characters. It will break the UI.\n"
+                f"- Aim for roughly {target_chars - 20} characters to guarantee survival.\n\n"
+                f"MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence."
+            )
             
             response = model.generate_content(final_prompt, generation_config=gen_config)
             
