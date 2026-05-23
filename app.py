@@ -151,22 +151,21 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             # Mathematical Floor for the LLM
             target_floor = max(50, target_chars - 50)
             
-            final_prompt = f"""
-            WRITE THE HIGH-CONVERSION SALES COPY FOR: {product_data}
-            
-            CONSTRAINTS:
-            - LANGUAGE: {selected_lang}
-            - TARGET AUDIENCE: {selected_aud}
-            - BEHAVIORAL TONE: {selected_tone}
-            
-            STRICT LENGTH ENFORCEMENT:
-            - Your TARGET is {target_chars} characters.
-            - You MUST output between {target_floor} and {target_chars} characters.
-            - DO NOT output {target_chars + 1} or more characters. It will break the UI.
-            - Aim for roughly {target_chars - 20} characters to guarantee survival.
-            
-            MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence.
-            """
+            # FIX: Cleaned up indentation inside the multi-line string literal
+            final_prompt = f"""WRITE THE HIGH-CONVERSION SALES COPY FOR: {product_data}
+
+CONSTRAINTS:
+- LANGUAGE: {selected_lang}
+- TARGET AUDIENCE: {selected_aud}
+- BEHAVIORAL TONE: {selected_tone}
+
+STRICT LENGTH ENFORCEMENT:
+- Your TARGET is {target_chars} characters.
+- You MUST output between {target_floor} and {target_chars} characters.
+- DO NOT output {target_chars + 1} or more characters. It will break the UI.
+- Aim for roughly {target_chars - 20} characters to guarantee survival.
+
+MANDATE: Trigger an immediate, subconscious urge to purchase. Blend this with a 100% human cadence."""
             
             response = model.generate_content(final_prompt, generation_config=gen_config)
             
