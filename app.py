@@ -169,11 +169,12 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         # --- PHASE 1: THE DISRUPTION ---
         with st.spinner("Executing Phase 1: Analyzing Audience & Injecting Subconscious Tension..."):
             prompt_1 = (
-                f"WRITE PHASE 1 FOR THIS PRODUCT:\n{product_data}\n\n"
-                f"TASK: Hook the {selected_aud} using {selected_tone} tone in {selected_lang}. "
-                f"Shatter their complacency. Identify the hidden fear or desire this product solves. Do not mention features yet; attack their psychology.\n"
-                f"CONSTRAINT: Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-            )
+    f"WRITE PHASE 1 FOR THIS PRODUCT:\n{product_data}\n\n"
+    f"TASK: Hook the {selected_aud} using {selected_tone} tone in {selected_lang}. "
+    f"Shatter their false sense of security. Dedicate the first paragraph entirely to exposing the invisible physical, emotional, or competitive threats of neglecting this issue. "
+    f"Dedicate a second paragraph to detailing the hidden, compound costs of choosing cheap, standard market alternatives. Dive deep into anxiety and friction. Do not mention product features yet.\n"
+    f"CONSTRAINT: You must write extensively. Aim for the high end of the boundary. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
+)
             out_1 = sovereign_synthesis_call(prompt_1)
             # Failsafe check to ensure we didn't just capture an error message
             if "SYSTEM OVERLOAD" not in out_1:
@@ -187,11 +188,12 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         # --- PHASE 2: THE REFRAMING (PKR 2000 RULE) ---
         with st.spinner("Executing Phase 2: Reframing Commodity into Luxury Asset..."):
             prompt_2 = (
-                f"WRITE PHASE 2 FOR THIS PRODUCT:\n{product_data}\n\n"
-                f"TASK: Continue in {selected_lang} ({selected_tone}). Take the raw specs provided and elevate them. "
-                f"Apply the 'PKR 2000 Water Rule'. Make this item sound so vital and elite that charging 2x the normal market price is completely justified.\n"
-                f"CONSTRAINT: Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-            )
+    f"WRITE PHASE 2 FOR THIS PRODUCT:\n{product_data}\n\n"
+    f"TASK: Continue in {selected_lang} ({selected_tone}). Take the raw specs provided and radically elevate them using the 'PKR 2000 Water Rule'. "
+    f"Do not just state what the product is made of. Explain the microscopic physics, the raw material premium, and the elite engineering behind every single feature. "
+    f"Prove step-by-step why this asset operates on an entirely different evolutionary plane than ordinary competitors, making a 2x price markup an absolute bargain.\n"
+    f"CONSTRAINT: Maximize your word output. Use rich, descriptive structural language. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
+)
             out_2 = sovereign_synthesis_call(prompt_2)
             if "SYSTEM OVERLOAD" not in out_2:
                 compiled_output_segments.append(out_2)
@@ -204,10 +206,11 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         # --- PHASE 3: THE ULTIMATUM ---
         with st.spinner("Executing Phase 3: Finalizing High-Velocity FOMO..."):
             prompt_3 = (
-                f"WRITE PHASE 3 FOR THIS PRODUCT:\n{product_data}\n\n"
-                f"TASK: Close the sale in {selected_lang}. Cold, high-velocity FOMO. Force an immediate subconscious buying decision. Make them feel they lose status or safety by leaving the page.\n"
-                f"CONSTRAINT: Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-            )
+    f"WRITE PHASE 3 FOR THIS PRODUCT:\n{product_data}\n\n"
+    f"TASK: Close the sale in {selected_lang} using {selected_tone} tone. Paint a vivid, gritty, multi-sentence scenario of the product in action during a high-stakes moment. "
+    f"Contrast the absolute victory of the owner against the chaotic failure of those who opted for cheap alternatives. End with cold, high-velocity FOMO and an uncompromising ultimatum that forces an immediate subconscious purchase decision.\n"
+    f"CONSTRAINT: Exhaust your available character budget. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
+)
             out_3 = sovereign_synthesis_call(prompt_3)
             if "SYSTEM OVERLOAD" not in out_3:
                 compiled_output_segments.append(out_3)
