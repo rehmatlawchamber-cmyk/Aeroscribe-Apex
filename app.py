@@ -142,17 +142,17 @@ st.sidebar.markdown("---")
 st.sidebar.success("ANTI-429 FALLBACK ARMOR ACTIVE")
 
 # ==========================================
-# 5. HARDENED EXECUTION LAYER WITH PACING
+# 5. UNIFIED SINGLE-PASS EXECUTION LAYER
 # ==========================================
 st.title("📈 AeroScribe Apex")
 st.markdown(f"### **Cognitive Reframing Engine**")
 
 default_specs = (
-    "[PRODUCT: Standard Plastic Water Bottle]\n"
-    "- 500ml capacity\n"
-    "- BPA free plastic\n"
-    "- sourced from mountain springs\n"
-    "- screw cap"
+    "[PRODUCT: Standard Pack of Overnight Baby Diapers (Pampers)]\n"
+    "- High absorbency core\n"
+    "- Breathable materials\n"
+    "- Up to 12 hours of leakage protection\n"
+    "- Elastic waistband"
 )
 
 product_data = st.text_area("Input Intelligence (Raw Product Specs):", value=default_specs, height=180)
@@ -160,81 +160,52 @@ product_data = st.text_area("Input Intelligence (Raw Product Specs):", value=def
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
         
-        # Calculate strict boundaries for the 3 phases
-        chunk_target = target_chars // 3
-        chunk_floor = max(15, chunk_target - 50)
-        
-        compiled_output_segments = []
-        
-        # --- PHASE 1: THE DISRUPTION ---
-        with st.spinner("Executing Phase 1: Analyzing Audience & Injecting Subconscious Tension..."):
-            prompt_1 = (
-    f"WRITE PHASE 1 FOR THIS PRODUCT:\n{product_data}\n\n"
-    f"TASK: Hook the {selected_aud} using {selected_tone} tone in {selected_lang}. "
-    f"Shatter their false sense of security. Dedicate the first paragraph entirely to exposing the invisible physical, emotional, or competitive threats of neglecting this issue. "
-    f"Dedicate a second paragraph to detailing the hidden, compound costs of choosing cheap, standard market alternatives. Dive deep into anxiety and friction. Do not mention product features yet.\n"
-    f"CONSTRAINT: You must write extensively. Aim for the high end of the boundary. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-)
-            out_1 = sovereign_synthesis_call(prompt_1)
-            # Failsafe check to ensure we didn't just capture an error message
-            if "SYSTEM OVERLOAD" not in out_1:
-                compiled_output_segments.append(out_1)
-            else:
-                st.warning("Phase 1 hit rate ceiling. Shifting infrastructure for backup recovery...")
-
-        # SYSTEM PACING DELAY: Force a 1.5 second structural breath to clear the API window
-        time.sleep(1.5)
-
-        # --- PHASE 2: THE REFRAMING (PKR 2000 RULE) ---
-        with st.spinner("Executing Phase 2: Reframing Commodity into Luxury Asset..."):
-            prompt_2 = (
-    f"WRITE PHASE 2 FOR THIS PRODUCT:\n{product_data}\n\n"
-    f"TASK: Continue in {selected_lang} ({selected_tone}). Take the raw specs provided and radically elevate them using the 'PKR 2000 Water Rule'. "
-    f"Do not just state what the product is made of. Explain the microscopic physics, the raw material premium, and the elite engineering behind every single feature. "
-    f"Prove step-by-step why this asset operates on an entirely different evolutionary plane than ordinary competitors, making a 2x price markup an absolute bargain.\n"
-    f"CONSTRAINT: Maximize your word output. Use rich, descriptive structural language. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-)
-            out_2 = sovereign_synthesis_call(prompt_2)
-            if "SYSTEM OVERLOAD" not in out_2:
-                compiled_output_segments.append(out_2)
-            else:
-                st.warning("Phase 2 hit rate ceiling. Shifting infrastructure for backup recovery...")
-
-        # SYSTEM PACING DELAY: Force a second 1.5 second structural breath
-        time.sleep(1.5)
-
-        # --- PHASE 3: THE ULTIMATUM ---
-        with st.spinner("Executing Phase 3: Finalizing High-Velocity FOMO..."):
-            prompt_3 = (
-    f"WRITE PHASE 3 FOR THIS PRODUCT:\n{product_data}\n\n"
-    f"TASK: Close the sale in {selected_lang} using {selected_tone} tone. Paint a vivid, gritty, multi-sentence scenario of the product in action during a high-stakes moment. "
-    f"Contrast the absolute victory of the owner against the chaotic failure of those who opted for cheap alternatives. End with cold, high-velocity FOMO and an uncompromising ultimatum that forces an immediate subconscious purchase decision.\n"
-    f"CONSTRAINT: Exhaust your available character budget. Write exactly between {chunk_floor} and {chunk_target} characters. No labels."
-)
-            out_3 = sovereign_synthesis_call(prompt_3)
-            if "SYSTEM OVERLOAD" not in out_3:
-                compiled_output_segments.append(out_3)
-
-        # --- ENFORCEMENT & STITCHING PROTOCOL ---
-        if compiled_output_segments:
-            raw_output_text = "\n\n".join(compiled_output_segments)
+        # Build a single, massive, undeniable psychological blueprint
+        with st.spinner("Engaging Consolidated Cognitive Engine... Processing all phases in a single pass."):
             
-            # Absolute Python Character Math Enforcement
-            final_text = raw_output_text
+            unified_master_prompt = (
+                f"EXECUTE A COMPLETE THREE-PHASE HIGH-VOLUME SALES COPY FOR THIS PRODUCT:\n{product_data}\n\n"
+                f"TARGET LENGTH: You must generate an extensive, highly descriptive text reaching exactly around {target_chars} characters. "
+                f"DEPLOYMENT SPECIFICATIONS: Language: {selected_lang} | Tone: {selected_tone} | Target Audience: {selected_aud}.\n\n"
+                
+                f"YOU MUST WRITE CONTINUOUSLY THROUGH THREE SECTIONS WITHOUT GENERATING LABELS OR HEADINGS:\n\n"
+                
+                f"SECTION 1 (The Psychological Disruption): First 30% of text. Shatter the audience's false sense of security. "
+                f"Expose the invisible physical, emotional, or competitive threats of neglecting this issue. Detail the hidden, compound costs of cheap alternatives.\n\n"
+                
+                f"SECTION 2 (The Material Alchemy & PKR 2000 Rule): Middle 40% of text. Transition immediately into reframing the raw specs. "
+                f"Explain the microscopic physics and elite engineering behind every feature. Prove why this asset operates on an entirely different plane, "
+                f"making a 2x price markup an absolute lifestyle imperative.\n\n"
+                
+                f"SECTION 3 (The Scenario Ultimatum): Final 30% of text. Paint a vivid, gritty scenario of the product in action during a high-stakes moment. "
+                f"Contrast the absolute victory of the owner against the failure of the cheap market. End with cold, high-velocity FOMO and an uncompromising ultimatum.\n\n"
+                
+                f"CRITICAL CONSTRAINT: Use highly complex, asymmetrical sentence lengths to maintain a human-written footprint. "
+                f"Do not drop below 1500 characters under any circumstance. Maximize your output up to the target limit."
+            )
+            
+            # Execute the single consolidated call
+            final_raw_output = sovereign_synthesis_call(unified_master_prompt)
+            
+        # --- ENFORCEMENT & SLICING PROTOCOL ---
+        if "SYSTEM OVERLOAD" not in final_raw_output:
+            final_text = final_raw_output
+            
+            # Python Math Hard-Slice for Absolute Maximum Control
             if len(final_text) > target_chars:
-                final_text = final_text[:target_chars] # Hard slice to guarantee max limit
+                final_text = final_text[:target_chars]
                 last_period = final_text.rfind('.')
                 if last_period > len(final_text) - 50: 
                     final_text = final_text[:last_period + 1]
                     
-            # Failsafe for the absolute 50 character minimum limit
+            # Absolute Minimum Failsafe
             if len(final_text) < 50:
-                final_text = "This asset demands absolute clarity. The specifications redefine market standards. Secure your allocation immediately before market dynamics force a revaluation."
+                final_text = "This asset demands absolute clarity. The specifications redefine market standards. Secure your allocation immediately."
         else:
-            # Complete system fallback text if ALL phases fail due to severe external quota blockage
+            # Complete system fallback text if the single call hits an unexpected structural block
             final_text = (
                 "Sovereign allocation protocol fully engaged. This premium asset bypasses conventional market standards, "
-                "delivering unprecedented micro-climate optimization and operational excellence. Secure your structural investment "
+                "delivering unprecedented structural optimization and operational excellence. Secure your commercial investment "
                 "immediately before impending logistical restrictions dictate a complete market revaluation."
             )
             if len(final_text) > target_chars: 
@@ -244,7 +215,6 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
         
         st.markdown("---")
         st.subheader(f"💎 Deployed Asset ({selected_lang})")
-        
         st.info(final_text)
         
         # Display Metrics
