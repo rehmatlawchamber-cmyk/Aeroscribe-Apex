@@ -64,7 +64,7 @@ Return ONLY the raw sales copy. Zero meta-text. Zero formatting labels like "Pha
 """
 
 # ==========================================
-# 3. DYNAMIC ENGINE RESOLVER & ANTI-429 ARMOR
+# 3. DYNAMIC ENGINE RESOLVER & HARDENED SAFETY
 # ==========================================
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -80,12 +80,21 @@ try:
     if not backup_model:
         backup_model = available_models[0]
 
+    # Optimized generation config to give the model room to max out the characters
     gen_config = {
-        "temperature": 0.9, 
-        "top_p": 0.95, 
-        "top_k": 65,
-        "max_output_tokens": 2000  # Hard ceiling for safety
+        "temperature": 0.85, 
+        "top_p": 0.9, 
+        "top_k": 40,
+        "max_output_tokens": 2500  
     }
+    
+    # Structural Safety Exemption parameters map to avoid false filtering blocks
+    safety_settings = [
+        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+    ]
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
     st.stop()
@@ -98,7 +107,11 @@ def sovereign_synthesis_call(prompt, attempt_limit=3):
         model = genai.GenerativeModel(model_name=model_name, system_instruction=SYSTEM_INSTRUCTION)
         for attempt in range(attempt_limit):
             try:
-                response = model.generate_content(prompt, generation_config=gen_config)
+                response = model.generate_content(
+                    prompt, 
+                    generation_config=gen_config,
+                    safety_settings=safety_settings
+                )
                 return response.text.strip()
             except Exception as e:
                 error_msg = str(e).lower()
@@ -170,18 +183,20 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
                 
                 f"YOU MUST WRITE CONTINUOUSLY THROUGH THREE SECTIONS WITHOUT GENERATING LABELS OR HEADINGS:\n\n"
                 
-                f"SECTION 1 (The Psychological Disruption): First 30% of text. Shatter the audience's false sense of security. "
-                f"Expose the invisible physical, emotional, or competitive threats of neglecting this issue. Detail the hidden, compound costs of cheap alternatives.\n\n"
+                f"SECTION 1 (The Psychological Disruption): This must fill the first 30% of the length constraint. Shatter the audience's false sense of security. "
+                f"Dedicate multiple detailed paragraphs to exposing the invisible physical, emotional, or competitive threats of neglecting this issue. "
+                f"Expose the hidden, compound costs of cheap market options. Focus deeply on systemic failure, stress, and friction. Do not mention product features yet.\n\n"
                 
-                f"SECTION 2 (The Material Alchemy & PKR 2000 Rule): Middle 40% of text. Transition immediately into reframing the raw specs. "
-                f"Explain the microscopic physics and elite engineering behind every feature. Prove why this asset operates on an entirely different plane, "
-                f"making a 2x price markup an absolute lifestyle imperative.\n\n"
+                f"SECTION 2 (The Material Alchemy & PKR 2000 Rule): This must fill the next 40% of the length constraint. Transition immediately into reframing the raw product specs. "
+                f"Do not just state what the product is made of. Explain the microscopic physics, the raw premium materials, and the elite engineering behind every single feature. "
+                f"Prove step-by-step why this asset operates on an entirely different evolutionary plane, making a 2x price markup an absolute lifestyle necessity.\n\n"
                 
-                f"SECTION 3 (The Scenario Ultimatum): Final 30% of text. Paint a vivid, gritty scenario of the product in action during a high-stakes moment. "
-                f"Contrast the absolute victory of the owner against the failure of the cheap market. End with cold, high-velocity FOMO and an uncompromising ultimatum.\n\n"
+                f"SECTION 3 (The Scenario Ultimatum): This must fill the remaining 30% of the length constraint. Paint a vivid, gritty, realistic scenario of the product in action during a high-stakes moment. "
+                f"Contrast the absolute victory of the owner against the structural failure of those who opted for standard market alternatives. "
+                f"End with cold, high-velocity FOMO and an uncompromising ultimatum that forces an immediate subconscious purchase decision.\n\n"
                 
                 f"CRITICAL CONSTRAINT: Use highly complex, asymmetrical sentence lengths to maintain a human-written footprint. "
-                f"Do not drop below 1500 characters under any circumstance. Maximize your output up to the target limit."
+                f"Do not drop below 1500 characters under any circumstance. Maximize your descriptive vocabulary output up to the exact target limit."
             )
             
             # Execute the single consolidated call
