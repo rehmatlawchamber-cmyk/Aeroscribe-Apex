@@ -102,6 +102,7 @@ except Exception as e:
 def sovereign_synthesis_call(prompt, attempt_limit=3):
     """Executes API call with Exponential Backoff and Model Shifting to eliminate rate limit errors."""
     models_to_try = [primary_model, backup_model]
+    last_error = "None"
     
     for model_name in models_to_try:
         model = genai.GenerativeModel(model_name=model_name, system_instruction=SYSTEM_INSTRUCTION)
@@ -114,13 +115,15 @@ def sovereign_synthesis_call(prompt, attempt_limit=3):
                 )
                 return response.text.strip()
             except Exception as e:
-                error_msg = str(e).lower()
+                last_error = str(e)
+                error_msg = last_error.lower()
                 if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
                     time.sleep(2 ** attempt) # Waits 1s, 2s, 4s
                     continue
                 else:
                     break # Break inner loop to switch models for other errors
-    return "SYSTEM OVERLOAD: Connection severed. Please try again."
+                    
+    return f"DIAGNOSTIC ERROR: Connection Severed. Primary: {primary_model} | Backup: {backup_model} | Raw API Response: {last_error}"
 
 # ==========================================
 # 4. SOVEREIGN CONTROL SIDEBAR
@@ -160,15 +163,8 @@ st.sidebar.success("ANTI-429 FALLBACK ARMOR ACTIVE")
 st.title("📈 AeroScribe Apex")
 st.markdown(f"### **Cognitive Reframing Engine**")
 
-default_specs = (
-    "[PRODUCT: Standard Pack of Overnight Baby Diapers (Pampers)]\n"
-    "- High absorbency core\n"
-    "- Breathable materials\n"
-    "- Up to 12 hours of leakage protection\n"
-    "- Elastic waistband"
-)
-
-product_data = st.text_area("Input Intelligence (Raw Product Specs):", value=default_specs, height=180)
+# Starts completely clean and blank per your specification
+product_data = st.text_area("Input Intelligence (Raw Product Specs):", value="", height=180, placeholder="Enter product name and features here...")
 
 if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
     if product_data:
@@ -203,7 +199,7 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             final_raw_output = sovereign_synthesis_call(unified_master_prompt)
             
         # --- ENFORCEMENT & SLICING PROTOCOL ---
-        if "SYSTEM OVERLOAD" not in final_raw_output:
+        if "DIAGNOSTIC ERROR" not in final_raw_output:
             final_text = final_raw_output
             
             # Python Math Hard-Slice for Absolute Maximum Control
@@ -217,14 +213,8 @@ if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
             if len(final_text) < 50:
                 final_text = "This asset demands absolute clarity. The specifications redefine market standards. Secure your allocation immediately."
         else:
-            # Complete system fallback text if the single call hits an unexpected structural block
-            final_text = (
-                "Sovereign allocation protocol fully engaged. This premium asset bypasses conventional market standards, "
-                "delivering unprecedented structural optimization and operational excellence. Secure your commercial investment "
-                "immediately before impending logistical restrictions dictate a complete market revaluation."
-            )
-            if len(final_text) > target_chars: 
-                final_text = final_text[:target_chars]
+            # Displays the precise connection or key breakdown variables instead of generic text
+            final_text = final_raw_output
 
         char_count = len(final_text)
         
