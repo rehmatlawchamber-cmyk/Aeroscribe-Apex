@@ -85,7 +85,7 @@ try:
         "temperature": 0.85, 
         "top_p": 0.9, 
         "top_k": 40,
-        "max_output_tokens": 2500  
+        "max_output_tokens": 8192  # Increased from 2500 to allow high-volume German vocabulary
     }
     
     # Structural Safety Exemption parameters map to avoid false filtering blocks
