@@ -78,6 +78,31 @@ def generate_handle(title):
     return "-".join(clean.split())
 
 # ==========================================
+# Helper Function for Rate-Limited Generations
+# ==========================================
+def generate_with_retry(prompt_text, config_dict):
+    """Executes API generation with exponential backoff on 429 rate limits."""
+    max_retries = 3
+    delay = 15  # Starts at 15 seconds to safely clear the 5 RPM limit
+    
+    for attempt in range(max_retries):
+        try:
+            response = model.generate_content(prompt_text, generation_config=config_dict)
+            return response.text.strip()
+        except Exception as e:
+            err_msg = str(e).lower()
+            # Catch standard 429, Quota, or ResourceExhausted exceptions
+            if "429" in err_msg or "exhausted" in err_msg or "quota" in err_msg:
+                if attempt < max_retries - 1:
+                    st.warning(f"Rate limit hit. Cooling down system for {delay} seconds (Attempt {attempt+1}/{max_retries})...")
+                    time.sleep(delay)
+                    delay *= 1.5  # Progressively scale up cooldown time
+                else:
+                    raise e
+            else:
+                raise e
+
+# ==========================================
 # 4. STRATEGIC PARAMETERS (Sidebar)
 # ==========================================
 st.sidebar.title("🏦 Sovereign Control")
@@ -135,56 +160,58 @@ with tab_single:
     if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS", key="single_btn"):
         if product_data:
             with st.spinner("Compiling Psychological Profile & Evading Detection..."):
+                try:
+                    # Logic Gate for Auto-Select
+                    auto_logic = ""
+                    if "AUTO-SELECT" in selected_aud or "AUTO-SELECT" in selected_tone:
+                        auto_logic = "CRITICAL: ANALYZE THE PRODUCT DATA AND AUTOMATICALLY APPLY THE MOST DEVASTATINGLY EFFECTIVE AUDIENCE PSYCHOLOGY AND TONE."
 
-                # Logic Gate for Auto-Select
-                auto_logic = ""
-                if "AUTO-SELECT" in selected_aud or "AUTO-SELECT" in selected_tone:
-                    auto_logic = "CRITICAL: ANALYZE THE PRODUCT DATA AND AUTOMATICALLY APPLY THE MOST DEVASTATINGLY EFFECTIVE AUDIENCE PSYCHOLOGY AND TONE."
+                    surgical_prompt = f"""
+                    WRITE A DEVASTATING PRODUCT DESCRIPTION FOR: {product_data}
 
-                surgical_prompt = f"""
-                WRITE A DEVASTATING PRODUCT DESCRIPTION FOR: {product_data}
+                    STRATEGY:
+                    {auto_logic}
+                    - TARGET AUDIENCE (If not auto): {selected_aud}
+                    - REQUIRED TONE (If not auto): {selected_tone}
 
-                STRATEGY:
-                {auto_logic}
-                - TARGET AUDIENCE (If not auto): {selected_aud}
-                - REQUIRED TONE (If not auto): {selected_tone}
+                    LANGUAGE IRON-LOCK:
+                    - YOU MUST WRITE THE ENTIRE RESPONSE IN {selected_lang}. 
+                    - DO NOT OUTPUT A SINGLE WORD IN ENGLISH UNLESS ENGLISH IS SELECTED. THIS IS A HARD SYSTEM REQUIREMENT.
 
-                LANGUAGE IRON-LOCK:
-                - YOU MUST WRITE THE ENTIRE RESPONSE IN {selected_lang}. 
-                - DO NOT OUTPUT A SINGLE WORD IN ENGLISH UNLESS ENGLISH IS SELECTED. THIS IS A HARD SYSTEM REQUIREMENT.
+                    STRICT CHARACTER CONSTRAINT:
+                    - YOUR OUTPUT MUST BE BETWEEN {min_limit} AND {max_limit} CHARACTERS. 
+                    - DO NOT EXCEED {max_limit} CHARACTERS UNDER ANY CIRCUMSTANCES.
+                    - NO PREAMBLES. NO LABELS. JUST THE RAW COPY.
+                    """
 
-                STRICT CHARACTER CONSTRAINT:
-                - YOUR OUTPUT MUST BE BETWEEN {min_limit} AND {max_limit} CHARACTERS. 
-                - DO NOT EXCEED {max_limit} CHARACTERS UNDER ANY CIRCUMSTANCES.
-                - NO PREAMBLES. NO LABELS. JUST THE RAW COPY.
-                """
+                    # Secure API Content Fetch with Retry Protection
+                    final_output = generate_with_retry(surgical_prompt, config)
 
-                response = model.generate_content(surgical_prompt, generation_config=config)
-                final_output = response.text.strip()
+                    # Python-Level Pruning (Failsafe)
+                    if len(final_output) > max_limit:
+                        pruned = final_output[:max_limit]
+                        last_stop = max(pruned.rfind('.'), pruned.rfind('!'), pruned.rfind('؟'))
+                        if last_stop != -1:
+                            final_output = pruned[:last_stop + 1]
+                        else:
+                            final_output = pruned
 
-                # Python-Level Pruning (Failsafe)
-                if len(final_output) > max_limit:
-                    pruned = final_output[:max_limit]
-                    last_stop = max(pruned.rfind('.'), pruned.rfind('!'), pruned.rfind('؟'))
-                    if last_stop != -1:
-                        final_output = pruned[:last_stop + 1]
-                    else:
-                        final_output = pruned
+                    char_count = len(final_output)
 
-                char_count = len(final_output)
+                    st.markdown("---")
+                    st.subheader("💎 Deployed Asset")
+                    st.info(final_output)
 
-                st.markdown("---")
-                st.subheader("💎 Deployed Asset")
-                st.info(final_output)
-
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Character Count", char_count)
-                with col2:
-                    status = "✅ OPTIMIZED" if min_limit <= char_count <= max_limit else "⚠️ OUTSIDE TOLERANCE"
-                    st.write(f"Status: **{status}**")
-                with col3:
-                    st.write("ZeroGPT Target: **Human Asymmetry Achieved**")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("Character Count", char_count)
+                    with col2:
+                        status = "✅ OPTIMIZED" if min_limit <= char_count <= max_limit else "⚠️ OUTSIDE TOLERANCE"
+                        st.write(f"Status: **{status}**")
+                    with col3:
+                        st.write("ZeroGPT Target: **Human Asymmetry Achieved**")
+                except Exception as single_error:
+                    st.error(f"SINGLE GENERATION FAULT: {str(single_error)}")
         else:
             st.error("Operation halted. Data input is required for synthesis.")
 
@@ -249,9 +276,8 @@ with tab_bulk:
                     - NO PREAMBLES. NO LABELS. JUST THE RAW COPY.
                     """
 
-                    # Secure API Content Fetch
-                    response = model.generate_content(bulk_prompt, generation_config=config)
-                    item_output = response.text.strip()
+                    # Secure API Content Fetch using our Rate-Limit Shield
+                    item_output = generate_with_retry(bulk_prompt, config)
 
                     # Precise layout math boundary check (-50 character safety buffer fallback)
                     if len(item_output) > max_limit:
@@ -321,7 +347,7 @@ with tab_bulk:
                     
                     progress_bar.progress((idx + 1) / total_items)
                     
-                    # Intentional 1.5-second anti-429 cooling guard interval
+                    # Subtle pacing delay to clear normal usage intervals
                     time.sleep(1.5)
 
                 # Convert compiled preview records to DataFrame for tracking display
