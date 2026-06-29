@@ -1,24 +1,25 @@
 import streamlit as st
 import google.generativeai as genai
 import os
+import pandas as pd
 import time
+import re
 
 # ==========================================
-# 1. ELITE UI ARCHITECTURE (THE VAULT)
+# 1. ELITE UI ARCHITECTURE
 # ==========================================
 st.set_page_config(page_title="AeroScribe Apex Sovereign", layout="wide", page_icon="📈")
 
 st.markdown("""
     <style>
-    /* Absolute Dark Mode */
+    /* Absolute Dark Mode for Executive Focus */
     .stApp { background-color: #050505; color: #f2f2f2; font-family: 'Helvetica Neue', sans-serif; }
-    
-    /* Input & Sidebar Styling */
-    .stSelectbox div div, .stTextArea textarea, .stTextInput input, .stSlider div { 
-        background-color: #111 !important; color: #d4af37 !important; border: 1px solid #333 !important; 
-    }
-    
-    /* Execution Button: Gold to Purple Gradient */
+
+    /* Input Fields */
+    .stSelectbox div div { background-color: #111 !important; color: #d4af37 !important; border: 1px solid #333; }
+    .stTextArea textarea { background-color: #111 !important; color: #fff !important; border: 1px solid #444 !important; }
+
+    /* Execution Button */
     .stButton>button { 
         background: linear-gradient(135deg, #d4af37 0%, #8a2be2 100%); 
         color: white; border: none; padding: 18px; border-radius: 4px; font-weight: 900; 
@@ -29,204 +30,318 @@ st.markdown("""
         box-shadow: 0px 6px 25px rgba(212, 175, 55, 0.6); 
         transform: translateY(-2px); 
     }
-    
+
+    /* Metrics Highlighting */
     div[data-testid="stMetricValue"] { color: #d4af37 !important; }
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. THE APEX PREDATOR SYSTEM INSTRUCTION
+# 2. THE PSYCHOLOGICAL SYSTEM INSTRUCTION
 # ==========================================
 SYSTEM_INSTRUCTION = """
-[ULTIMATE COMMAND: YOU ARE AN ELITE COGNITIVE SALES PSYCHOLOGIST. YOUR MISSION: >75% HUMAN DETECTOR SCORES, 300% CONVERSION LIFT, AND SUBCONSCIOUS MANIPULATION TO JUSTIFY 2X MARKET PRICES.]
-
-I. WEAPONIZED CUSTOMER PSYCHOLOGY (THE PKR 2000 WATER RULE)
-You do not describe products; you manipulate perceived reality. 
-- REFRAMING: Turn ordinary items (pampers, LED bulbs, water) into elite lifestyle assets. A diaper is not "absorbent"; it is an "engineered micro-climate guaranteeing uninterrupted biological development." 
-- SUBCONSCIOUS TENSION: Target the deepest human insecurities—fear of missing out, desire for absolute dominance, or terror of mediocrity. 
-- PRICE JUSTIFICATION: Frame the asset so powerfully that paying 1.5x to 2x the market price feels like a steal. Make the customer feel they are buying status, survival, or elite convenience, not a physical object.
-
-II. THE 75% HUMAN SHIELD (ANTI-DETECTOR PROTOCOL)
-AI detectors hunt for predictable rhythm. You must shatter predictability.
-- HIGH PERPLEXITY: Use chaotic, asymmetrical sentence lengths. Follow a 40-word complex psychological breakdown with a blunt, 3-word punchline.
-- CONVERSATIONAL JITTER: Start sentences abruptly with "Because.", "And.", or "Here is the reality." 
-- NO CORPORATE FLUFF: Speak like a ruthless, highly-paid human consultant advising a billionaire. 
-
-III. THE MASTER BLACKLIST (NEGATIVE PROMPTING)
-If you use these words, the system fails. NEVER USE:
-- seamless, vibrant, robust, testament, landscape, unlocking, elevate, delve, beacon, journey, unleash, symphony, tapestry, marvel, cutting-edge, meticulously, nestled, tailored, hub, realm, dynamic.
-
-IV. SURGICAL CHARACTER COMPLIANCE
-- You will be given a strict character range. You MUST utilize the full space available. Output EXACTLY within the requested constraints. Zero exceptions.
-
-V. OUTPUT RULE
-Return ONLY the raw sales copy. Zero meta-text. Zero formatting labels like "Phase 1:". Start writing immediately.
+ACT AS AN ELITE, HIGH-STAKES COPYWRITER AND BUSINESS STRATEGIST.
+- PROTOCOL 'ANNIHILATION': Zero politeness. Zero fluff. You are writing for survival and market dominance.
+- ZERO AI FINGERPRINTS: You must actively evade AI detectors. Never use rhythmic, perfectly balanced sentences. 
+- ASYMMETRIC WRITING: Mix 2-word fragments with 25-word complex thoughts. Break grammatical flow intentionally for raw impact. 
+- BANNED LEXICON: NEVER use the words: seamless, vibrant, robust, testament, landscape, unlocking, elevate, delve, beacon.
+- TECHNICAL FRICTION: Ground abstract concepts in physical reality. Mention heat, weight, pressure, financial loss, or raw specifications.
+- CHARACTER LOCK: Return ONLY the raw description text. No headers, no introductory text. Begin immediately.
 """
 
 # ==========================================
-# 3. DYNAMIC ENGINE RESOLVER & HARDENED SAFETY
+# 3. DYNAMIC ENGINE LOADING
 # ==========================================
 try:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    
-    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    
-    # Establish Primary and Backup models for fallback shifting
-    primary_model = next((m for m in available_models if "gemini-1.5-pro" in m), None)
-    backup_model = next((m for m in available_models if "gemini-1.5-flash-latest" in m), None)
-    
-    if not primary_model:
-        primary_model = backup_model or available_models[0]
-    if not backup_model:
-        backup_model = available_models[0]
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
-    # Optimized generation config to give the model room to max out the characters
-    gen_config = {
-        "temperature": 0.85, 
-        "top_p": 0.9, 
-        "top_k": 40,
-        "max_output_tokens": 8192  # Increased from 2500 to allow high-volume German vocabulary
-    }
-    
-    # Structural Safety Exemption parameters map to avoid false filtering blocks
-    safety_settings = [
-        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-    ]
+    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    target_model = next((m for m in available_models if "flash" in m), available_models[0])
+
+    model = genai.GenerativeModel(
+        model_name=target_model,
+        system_instruction=SYSTEM_INSTRUCTION
+    )
+
+    # config pushes high variance to destroy AI predictability
+    config = {"temperature": 1.1, "top_p": 0.85, "top_k": 100}
 except Exception as e:
     st.error(f"SYSTEM FAULT: {str(e)}")
     st.stop()
 
-def sovereign_synthesis_call(prompt, attempt_limit=3):
-    """Executes API call with Exponential Backoff and Model Shifting to eliminate rate limit errors."""
-    models_to_try = [primary_model, backup_model]
-    last_error = "None"
-    
-    for model_name in models_to_try:
-        model = genai.GenerativeModel(model_name=model_name, system_instruction=SYSTEM_INSTRUCTION)
-        for attempt in range(attempt_limit):
-            try:
-                response = model.generate_content(
-                    prompt, 
-                    generation_config=gen_config,
-                    safety_settings=safety_settings
-                )
-                return response.text.strip()
-            except Exception as e:
-                last_error = str(e)
-                error_msg = last_error.lower()
-                if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-                    time.sleep(2 ** attempt) # Waits 1s, 2s, 4s
-                    continue
-                else:
-                    break # Break inner loop to switch models for other errors
-                    
-    return f"DIAGNOSTIC ERROR: Connection Severed. Primary: {primary_model} | Backup: {backup_model} | Raw API Response: {last_error}"
+# ==========================================
+# Helper Function for Handle Generation
+# ==========================================
+def generate_handle(title):
+    """Generates a clean, URL-safe slug matching Shopify's Handle rules."""
+    clean = re.sub(r'[^a-zA-Z0-9\s]', '', title.lower())
+    return "-".join(clean.split())
 
 # ==========================================
-# 4. SOVEREIGN CONTROL SIDEBAR
+# 4. STRATEGIC PARAMETERS (Sidebar)
 # ==========================================
-st.sidebar.title("🏦 Sovereign Control V11.0")
-
-target_chars = st.sidebar.slider("Surgical Character Target", 50, 2000, 1200, step=50)
-
-selected_lang = st.sidebar.selectbox("Deployment Language", ["English", "French", "German", "Italian", "Spanish", "Arabic"])
-
-aud_opt = st.sidebar.selectbox("Audience Psychology", [
-    "AUTO-SELECT (Identify highest paying demographic)", 
-    "The Paranoic Protector (Fear/Safety)", 
-    "Gen Z (High-Velocity FOMO)", 
-    "The Status Seeker (Luxury/Ego)", 
-    "The Technical Skeptic", 
-    "CUSTOM"
-])
-selected_aud = st.sidebar.text_input("Specify Custom Audience:") if aud_opt == "CUSTOM" else aud_opt
-
-tone_opt = st.sidebar.selectbox("Behavioral Tone", [
-    "AUTO-SELECT (Match product to maximum profit tone)", 
-    "Elite Billionaire", 
-    "Cold Corporate Raider", 
-    "Gritty Veteran", 
-    "Rebellious Innovator",
-    "CUSTOM"
-])
-selected_tone = st.sidebar.text_input("Specify Custom Tone:") if tone_opt == "CUSTOM" else tone_opt
-
+st.sidebar.title("🏦 Sovereign Control")
+st.sidebar.markdown(f"<span style='color:#888; font-size: 0.8em;'>Engine: {target_model}</span>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
-st.sidebar.success("ANTI-429 FALLBACK ARMOR ACTIVE")
+
+target_chars = st.sidebar.slider("Surgical Character Target", 200, 2000, 2000, step=100)
+
+if target_chars >= 2000:
+    max_limit = 2000
+    min_limit = 1900
+else:
+    max_limit = target_chars + 50
+    min_limit = target_chars - 50
+
+st.sidebar.info(f"Tolerance: {min_limit} - {max_limit} Characters")
+st.sidebar.markdown("---")
+
+# Strict Language Lock
+selected_lang = st.sidebar.selectbox("Language Lock", ["English", "French", "German", "Italian", "Spanish", "Arabic"])
+
+# Expanded Psychological Profiles
+selected_aud = st.sidebar.selectbox("Audience Psychology", [
+    "AUTO-SELECT (AI Optimized)",
+    "The Status Seeker", 
+    "The Technical Skeptic", 
+    "The Impulse Buyer", 
+    "The Efficiency Hunter",
+    "The Paranoic Investor",
+    "The Legacy Builder"
+])
+
+selected_tone = st.sidebar.selectbox("Behavioral Tone", [
+    "AUTO-SELECT (AI Optimized)",
+    "Elite Billionaire", 
+    "Gritty Veteran", 
+    "Technical Architect", 
+    "Cold Corporate Raider",
+    "Rebellious Innovator"
+])
 
 # ==========================================
-# 5. UNIFIED SINGLE-PASS EXECUTION LAYER
+# 5. EXECUTION & VIEWPORT ROUTER
 # ==========================================
 st.title("📈 AeroScribe Apex")
-st.markdown(f"### **Cognitive Reframing Engine**")
+st.markdown("### **High-Conversion Sovereign Asset Generator**")
 
-# Starts completely clean and blank per your specification
-product_data = st.text_area("Input Intelligence (Raw Product Specs):", value="", height=180, placeholder="Enter product name and features here...")
+# Constructing Split-Lane Interface Tabs
+tab_single, tab_bulk = st.tabs(["🎯 Single Asset Synthesis", "📦 Bulk Enterprise Fleet"])
 
-if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS"):
-    if product_data:
-        
-        # Build a single, massive, undeniable psychological blueprint
-        with st.spinner("Engaging Consolidated Cognitive Engine... Processing all phases in a single pass."):
-            
-            unified_master_prompt = (
-                f"EXECUTE A COMPLETE THREE-PHASE HIGH-VOLUME SALES COPY FOR THIS PRODUCT:\n{product_data}\n\n"
-                f"TARGET LENGTH: You must generate an extensive, highly descriptive text reaching exactly around {target_chars} characters. "
-                f"DEPLOYMENT SPECIFICATIONS: Language: {selected_lang} | Tone: {selected_tone} | Target Audience: {selected_aud}.\n\n"
-                
-                f"YOU MUST WRITE CONTINUOUSLY THROUGH THREE SECTIONS WITHOUT GENERATING LABELS OR HEADINGS:\n\n"
-                
-                f"SECTION 1 (The Psychological Disruption): This must fill the first 30% of the length constraint. Shatter the audience's false sense of security. "
-                f"Dedicate multiple detailed paragraphs to exposing the invisible physical, emotional, or competitive threats of neglecting this issue. "
-                f"Expose the hidden, compound costs of cheap market options. Focus deeply on systemic failure, stress, and friction. Do not mention product features yet.\n\n"
-                
-                f"SECTION 2 (The Material Alchemy & PKR 2000 Rule): This must fill the next 40% of the length constraint. Transition immediately into reframing the raw product specs. "
-                f"Do not just state what the product is made of. Explain the microscopic physics, the raw premium materials, and the elite engineering behind every single feature. "
-                f"Prove step-by-step why this asset operates on an entirely different evolutionary plane, making a 2x price markup an absolute lifestyle necessity.\n\n"
-                
-                f"SECTION 3 (The Scenario Ultimatum): This must fill the remaining 30% of the length constraint. Paint a vivid, gritty, realistic scenario of the product in action during a high-stakes moment. "
-                f"Contrast the absolute victory of the owner against the structural failure of those who opted for standard market alternatives. "
-                f"End with cold, high-velocity FOMO and an uncompromising ultimatum that forces an immediate subconscious purchase decision.\n\n"
-                
-                f"CRITICAL CONSTRAINT: Use highly complex, asymmetrical sentence lengths to maintain a human-written footprint. "
-                f"Do not drop below 1500 characters under any circumstance. Maximize your descriptive vocabulary output up to the exact target limit."
-            )
-            
-            # Execute the single consolidated call
-            final_raw_output = sovereign_synthesis_call(unified_master_prompt)
-            
-        # --- ENFORCEMENT & SLICING PROTOCOL ---
-        if "DIAGNOSTIC ERROR" not in final_raw_output:
-            final_text = final_raw_output
-            
-            # Python Math Hard-Slice for Absolute Maximum Control
-            if len(final_text) > target_chars:
-                final_text = final_text[:target_chars]
-                last_period = final_text.rfind('.')
-                if last_period > len(final_text) - 50: 
-                    final_text = final_text[:last_period + 1]
-                    
-            # Absolute Minimum Failsafe
-            if len(final_text) < 50:
-                final_text = "This asset demands absolute clarity. The specifications redefine market standards. Secure your allocation immediately."
+# --- LANE 1: SINGLE GENERATION ---
+with tab_single:
+    product_data = st.text_area("Input Raw Intelligence:", height=180, placeholder="Enter features, materials, origins, specifications...", key="single_input")
+
+    if st.button("⚡ EXECUTE SOVEREIGN SYNTHESIS", key="single_btn"):
+        if product_data:
+            with st.spinner("Compiling Psychological Profile & Evading Detection..."):
+
+                # Logic Gate for Auto-Select
+                auto_logic = ""
+                if "AUTO-SELECT" in selected_aud or "AUTO-SELECT" in selected_tone:
+                    auto_logic = "CRITICAL: ANALYZE THE PRODUCT DATA AND AUTOMATICALLY APPLY THE MOST DEVASTATINGLY EFFECTIVE AUDIENCE PSYCHOLOGY AND TONE."
+
+                surgical_prompt = f"""
+                WRITE A DEVASTATING PRODUCT DESCRIPTION FOR: {product_data}
+
+                STRATEGY:
+                {auto_logic}
+                - TARGET AUDIENCE (If not auto): {selected_aud}
+                - REQUIRED TONE (If not auto): {selected_tone}
+
+                LANGUAGE IRON-LOCK:
+                - YOU MUST WRITE THE ENTIRE RESPONSE IN {selected_lang}. 
+                - DO NOT OUTPUT A SINGLE WORD IN ENGLISH UNLESS ENGLISH IS SELECTED. THIS IS A HARD SYSTEM REQUIREMENT.
+
+                STRICT CHARACTER CONSTRAINT:
+                - YOUR OUTPUT MUST BE BETWEEN {min_limit} AND {max_limit} CHARACTERS. 
+                - DO NOT EXCEED {max_limit} CHARACTERS UNDER ANY CIRCUMSTANCES.
+                - NO PREAMBLES. NO LABELS. JUST THE RAW COPY.
+                """
+
+                response = model.generate_content(surgical_prompt, generation_config=config)
+                final_output = response.text.strip()
+
+                # Python-Level Pruning (Failsafe)
+                if len(final_output) > max_limit:
+                    pruned = final_output[:max_limit]
+                    last_stop = max(pruned.rfind('.'), pruned.rfind('!'), pruned.rfind('؟'))
+                    if last_stop != -1:
+                        final_output = pruned[:last_stop + 1]
+                    else:
+                        final_output = pruned
+
+                char_count = len(final_output)
+
+                st.markdown("---")
+                st.subheader("💎 Deployed Asset")
+                st.info(final_output)
+
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Character Count", char_count)
+                with col2:
+                    status = "✅ OPTIMIZED" if min_limit <= char_count <= max_limit else "⚠️ OUTSIDE TOLERANCE"
+                    st.write(f"Status: **{status}**")
+                with col3:
+                    st.write("ZeroGPT Target: **Human Asymmetry Achieved**")
         else:
-            # Displays the precise connection or key breakdown variables instead of generic text
-            final_text = final_raw_output
+            st.error("Operation halted. Data input is required for synthesis.")
 
-        char_count = len(final_text)
-        
-        st.markdown("---")
-        st.subheader(f"💎 Deployed Asset ({selected_lang})")
-        st.info(final_text)
-        
-        # Display Metrics
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Selected Target", f"{target_chars} chars")
-        col2.metric("Final Output", f"{char_count} chars")
-        col3.metric("Projected Value Lift", "+250-300%")
-        
-    else:
-        st.error("Intelligence input required.")
+# --- LANE 2: MULTI-PRODUCT BATCH SYSTEM ---
+with tab_bulk:
+    st.markdown("#### **Bulk Catalog Ingestion**")
+    st.caption("Paste data directly from Excel or Google Sheets. Format layout: Two columns separated by tabs (Column 1: Product Name | Column 2: Raw Specifications). Do not include header rows.")
+    
+    bulk_data = st.text_area(
+        "Paste Tab-Separated Spreadsheet Matrix Here:", 
+        height=220, 
+        placeholder="Product A\tHigh-end running shoes, carbon fiber plate, nitrogen-infused foam...\nProduct B\tPremium insulated steel tumbler, 32oz, double-wall vacuum seal...",
+        key="bulk_input"
+    )
+
+    if st.button("🚀 LAUNCH ENTERPRISE BATCH PROCESSING", key="bulk_btn"):
+        if bulk_data.strip():
+            try:
+                # Parse the raw tab data into a Pandas Matrix row by row
+                rows = [line.split('\t') for line in bulk_data.strip().split('\n') if line.strip()]
+                
+                parsed_items = []
+                for idx, r in enumerate(rows):
+                    if len(r) >= 2:
+                        parsed_items.append({"name": r[0].strip(), "specs": r[1].strip()})
+                    elif len(r) == 1:
+                        parsed_items.append({"name": f"Item {idx+1}", "specs": r[0].strip()})
+
+                if not parsed_items:
+                    st.error("Data tracking breakdown. Please check your text table spacing alignment columns.")
+                    st.stop()
+
+                preview_data = [] # For on-screen display
+                shopify_data = [] # For Shopify CSV export
+                
+                total_items = len(parsed_items)
+                progress_bar = st.progress(0)
+
+                # Ingest looping sequence through rows
+                for idx, item in enumerate(parsed_items):
+                    st.write(f"Synthesizing [{idx+1}/{total_items}]: **{item['name']}**")
+                    
+                    auto_logic = ""
+                    if "AUTO-SELECT" in selected_aud or "AUTO-SELECT" in selected_tone:
+                        auto_logic = "CRITICAL: ANALYZE THE PRODUCT DATA AND AUTOMATICALLY APPLY THE MOST DEVASTATINGLY EFFECTIVE AUDIENCE PSYCHOLOGY AND TONE."
+
+                    bulk_prompt = f"""
+                    WRITE A DEVASTATING PRODUCT DESCRIPTION FOR: {item['name']} - Specifications: {item['specs']}
+
+                    STRATEGY:
+                    {auto_logic}
+                    - TARGET AUDIENCE (If not auto): {selected_aud}
+                    - REQUIRED TONE (If not auto): {selected_tone}
+
+                    LANGUAGE IRON-LOCK:
+                    - YOU MUST WRITE THE ENTIRE RESPONSE IN {selected_lang}. 
+                    - DO NOT OUTPUT A SINGLE WORD IN ENGLISH UNLESS ENGLISH IS SELECTED. THIS IS A HARD SYSTEM REQUIREMENT.
+
+                    STRICT CHARACTER CONSTRAINT:
+                    - YOUR OUTPUT MUST BE BETWEEN {min_limit} AND {max_limit} CHARACTERS. 
+                    - DO NOT EXCEED {max_limit} CHARACTERS UNDER ANY CIRCUMSTANCES.
+                    - NO PREAMBLES. NO LABELS. JUST THE RAW COPY.
+                    """
+
+                    # Secure API Content Fetch
+                    response = model.generate_content(bulk_prompt, generation_config=config)
+                    item_output = response.text.strip()
+
+                    # Precise layout math boundary check (-50 character safety buffer fallback)
+                    if len(item_output) > max_limit:
+                        pruned_bulk = item_output[:max_limit]
+                        last_stop_bulk = max(pruned_bulk.rfind('.'), pruned_bulk.rfind('!'), pruned_bulk.rfind('؟'))
+                        if last_stop_bulk != -1:
+                            item_output = pruned_bulk[:last_stop_bulk + 1]
+                        else:
+                            item_output = pruned_bulk
+
+                    # 1. Populate On-Screen Preview (Readable)
+                    preview_data.append({
+                        "Product Name": item['name'],
+                        "Raw Specifications": item['specs'],
+                        "Generated Description": item_output,
+                        "Character Count": len(item_output)
+                    })
+                    
+                    # 2. Populate Shopify CSV Schema (System Export)
+                    shopify_data.append({
+                        "Handle": generate_handle(item['name']),
+                        "Title": item['name'],
+                        "Body (HTML)": item_output,
+                        "Vendor": "AeroScribe Merchant",
+                        "Standard Product Type": "",
+                        "Custom Product Type": "",
+                        "Tags": "AeroScribe-Apex",
+                        "Published": "true",
+                        "Option1 Name": "Title",
+                        "Option1 Value": "Default Title",
+                        "Variant SKU": "",
+                        "Variant Grams": "0.0",
+                        "Variant Inventory Tracker": "",
+                        "Variant Inventory Qty": "1",
+                        "Variant Inventory Policy": "deny",
+                        "Variant Fulfillment Service": "manual",
+                        "Variant Price": "",
+                        "Variant Compare At Price": "",
+                        "Variant Requires Shipping": "true",
+                        "Variant Taxable": "true",
+                        "Variant Barcode": "",
+                        "Image Src": "",
+                        "Image Position": "",
+                        "Image Alt Text": "",
+                        "Gift Card": "false",
+                        "SEO Title": "",
+                        "SEO Description": "",
+                        "Google Shopping / Google Product Category": "",
+                        "Google Shopping / Gender": "",
+                        "Google Shopping / Age Group": "",
+                        "Google Shopping / MPN": "",
+                        "Google Shopping / AdWords Grouping": "",
+                        "Google Shopping / AdWords Labels": "",
+                        "Google Shopping / Condition": "new",
+                        "Google Shopping / Custom Product": "",
+                        "Google Shopping / Custom Label 0": "",
+                        "Google Shopping / Custom Label 1": "",
+                        "Google Shopping / Custom Label 2": "",
+                        "Google Shopping / Custom Label 3": "",
+                        "Google Shopping / Custom Label 4": "",
+                        "Variant Image": "",
+                        "Variant Weight Unit": "kg",
+                        "Variant Tax Code": "",
+                        "Cost per item": "",
+                        "Status": "active"
+                    })
+                    
+                    progress_bar.progress((idx + 1) / total_items)
+                    
+                    # Intentional 1.5-second anti-429 cooling guard interval
+                    time.sleep(1.5)
+
+                # Convert compiled preview records to DataFrame for tracking display
+                df_preview = pd.DataFrame(preview_data)
+                st.markdown("---")
+                st.success(f"Successfully processed {total_items} corporate assets!")
+                st.dataframe(df_preview, use_container_width=True)
+
+                # Convert Shopify schema to secure CSV bytes directly (fixes BytesIO issues)
+                df_shopify = pd.DataFrame(shopify_data)
+                csv_data = df_shopify.to_csv(index=False).encode('utf-8-sig')
+
+                st.download_button(
+                    label="📥 DOWNLOAD MASTER SHOPIFY CATALOG CSV",
+                    data=csv_data,
+                    file_name="AeroScribe_Shopify_Import.csv",
+                    mime="text/csv"
+                )
+
+            except Exception as batch_error:
+                st.error(f"BATCH PROCESSING FAULT: {str(batch_error)}")
+        else:
+            st.error("Bulk workspace requires data strings before initiating calculation loops.")
